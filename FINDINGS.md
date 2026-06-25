@@ -19,8 +19,10 @@ Before analysing, I checked the data and found a few things that shaped every re
 - **`delivery_status` has a 6th value the brief didn't list — `InTransit`** (5,043 not-yet-delivered
   orders). So I only measure delays on orders that actually completed (have a `delivered_at`).
 - **The two ways of defining "delayed" disagree.** Using the pre-computed `delivery_status` buckets gives
-  **26%** delayed; using the literal `delivered_at > promised_date` formula gives **8%**. They differ
-  because the buckets use the delivery *timestamp* (an intraday cutoff). **I use the bucket definition**
+  **26%** delayed; using the literal `delivered_at > promised_date` formula gives **8%**. The difference
+  is a **same-day rule**: 15,831 orders were delivered *exactly on* the promised day — the buckets count
+  those as late (`Late_1_2d`), while the strict formula counts same-day as on-time. (63,682 before + 7,008
+  strictly after + 15,831 on the day → 26% bucket-late vs 8% formula-late.) **I use the bucket definition**
   (it's what the SQL questions reference, and it reflects misses the customer actually feels). This is
   the single most important assumption in the whole analysis.
 - **The promise structure is clean:** fast-eligible orders get 2 days; everyone else gets 3, 4, or 5 days.

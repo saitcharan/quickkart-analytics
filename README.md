@@ -30,8 +30,9 @@ finally built the dashboard on top. This keeps every figure consistent — for e
 ## Key assumptions (where the data was ambiguous)
 
 1. **"Delayed" = the `delivery_status` Late bucket (≈26% of delivered orders), not the literal
-   `delivered_at > promised_date` formula (≈8%).** The two disagree because the buckets use the delivery
-   timestamp (an intraday cutoff). I went with the bucket because the SQL questions themselves reference
+   `delivered_at > promised_date` formula (≈8%).** The two disagree because of a **same-day rule**: 15,831
+   orders were delivered *exactly on* the promised day, which the buckets treat as late but the strict
+   formula treats as on-time. I went with the bucket because the SQL questions themselves reference
    "Late buckets" and it reflects misses the customer actually feels. **This is my most important
    assumption.**
 2. **"Delivered" = `status = 'Delivered'`; repeat customer = ≥2 delivered orders.**
@@ -84,8 +85,8 @@ every output before trusting it. Here's exactly how.
 - I ran **every query myself in MySQL Workbench** and read the results
 - I **reconciled the totals**: I confirmed GMV always sums to ₹339 crore and orders to 100,000 across the
   different queries, so I knew nothing was being silently dropped in the joins.
-- For the delay-definition question, I compared the bucket vs formula numbers side by side and inspected
-  sample delivery timestamps to understand the discrepancy before deciding.
+- For the delay-definition question, I compared the bucket vs formula numbers side by side and broke down
+  delivered-vs-promised dates (before / on / after the promised day) to understand the discrepancy before deciding.
 - For the dashboard, I checked its KPI numbers against my SQL results (GMV ₹339.20 Cr, delayed rate 26.4%,
   repeat rate 80.0% all matched) and ran the app to confirm the charts and filters behave correctly.
 
